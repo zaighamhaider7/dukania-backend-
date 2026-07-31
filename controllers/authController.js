@@ -36,9 +36,12 @@ const register = async (req, res) => {
     }
     catch (error) {
         console.log(error);
+        // return res.status(500).json({
+        //     msg: "Internal Server Error",
+        // });
         return res.status(500).json({
-            msg: "Internal Server Error",
-        });
+        error: error.message,
+    });
     }
 }
 
