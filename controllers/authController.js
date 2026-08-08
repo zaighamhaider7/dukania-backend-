@@ -88,7 +88,8 @@ const login = async (req, res) => {
                 name: emailExist.name,
                 email: emailExist.email,
                 storeName: emailExist.storeName,
-                storeUsername: emailExist.storeUsername
+                storeUsername: emailExist.storeUsername,
+                logo: emailExist.logo
             },
             token: token
         })

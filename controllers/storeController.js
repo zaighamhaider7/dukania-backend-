@@ -76,9 +76,6 @@ const createStore = async (req, res) => {
 const getStore = async (req, res) => {
     try {
         const { storeUsername } = req.params;
-
-        console.log("Username:", req.params.storeUsername);
-
         const store = await User.findOne({ storeUsername })
             .select("storeName storeUsername whatsappNumber category description logo");
 
