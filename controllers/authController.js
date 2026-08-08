@@ -22,7 +22,10 @@ const register = async (req, res) => {
         const emailExist = await User.findOne({ email });
 
         if (emailExist) {
-            return res.status(409).json({ msg: "Email Already Exist" });
+            return res.status(409).json({
+                field: "email",
+                msg: "Email already exists",
+            });
         }
         else {
             const hashPass = await bcrypt.hash(password, 10)
@@ -35,15 +38,64 @@ const register = async (req, res) => {
         }
     }
     catch (error) {
-        console.log(error);
-        // return res.status(500).json({
-        //     msg: "Internal Server Error",
-        // });
         return res.status(500).json({
-        error: error.message,
-    });
+            msg: "Internal Server Error",
+        });
+    }
+}
+
+const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        if (!email) {
+            return res.status(409).json({
+                field: "email",
+                msg: "Email is required"
+            });
+        }
+        if (!password) {
+            return res.status(409).json({
+                field: "password",
+                msg: "Password is required"
+            });
+        }
+
+        const emailExist = await User.findOne({ email });
+
+        if (!emailExist) {
+            return res.status(409).json({
+                field: "email",
+                msg: "Email Not Exist"
+            });
+        }
+
+        const ismatch = await bcrypt.compare(password, emailExist.password);
+
+        if (!ismatch) {
+            return res.status(409).json({
+                field: "password",
+                msg: "Invalid Password"
+            });
+        }
+
+        const token = await emailExist.generatetoken();
+
+        res.status(201).json({
+            msg: "Login Succesfully",
+            userData: {
+                id: emailExist._id,
+                name: emailExist.name,
+                email: emailExist.email,
+                storeName: emailExist.storeName,
+                storeUsername: emailExist.storeUsername
+            },
+            token: token
+        })
+    } catch (error) {
+        console.log(error);
     }
 }
 
 
-module.exports = { register }
+module.exports = { register, login }
