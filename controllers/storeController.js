@@ -1,4 +1,5 @@
 const User = require("../models/Users")
+const Product = require("../models/Products");
 
 
 const createStore = async (req, res) => {
@@ -85,9 +86,13 @@ const getStore = async (req, res) => {
             });
         }
 
+        const products = await Product.find({
+            storeId: store._id,
+        });
+
         return res.status(200).json({
-            msg: "Store fetched successfully",
             store,
+            products
         });
 
     } catch (error) {

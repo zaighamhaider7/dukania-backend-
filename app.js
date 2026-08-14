@@ -18,4 +18,9 @@ const storeRoutes = require('./routes/storeRoutes');
 
 app.use('/api/store',storeRoutes);
 
+// products routes
+const productRoutes = require('./routes/productRoutes');
+
+app.use('/api/product',productRoutes);
+
 module.exports = app;                                                                   
