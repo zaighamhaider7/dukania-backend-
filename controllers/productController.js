@@ -41,5 +41,44 @@ const addProduct = async (req, res) => {
   }
 };
 
+const getsingleProduct = async (req, res) => {
+  const { storeUsername, productId } = req.params;
 
-module.exports = { addProduct };
+  try {
+    const store = await User.findOne({ storeUsername });
+
+    if (!store) {
+      return res.status(404).json({
+        msg: "Store not found",
+      });
+    }
+
+    const product = await Product.findOne({
+      _id: productId,
+      storeId: store._id,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        msg: "Product not found",
+      });
+    }
+
+    return res.status(200).json({
+      msg: "Product fetched successfully",
+      product,
+      store
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      msg: "Something went wrong",
+    });
+  }
+};
+
+
+
+module.exports = { addProduct, getsingleProduct };
