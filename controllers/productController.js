@@ -58,6 +58,12 @@ const getsingleProduct = async (req, res) => {
       storeId: store._id,
     });
 
+    const relatedProducts = await Product.find({
+      storeId: store._id,
+      _id: { $ne: productId }
+    })
+      .limit(4);
+
     if (!product) {
       return res.status(404).json({
         msg: "Product not found",
@@ -67,7 +73,8 @@ const getsingleProduct = async (req, res) => {
     return res.status(200).json({
       msg: "Product fetched successfully",
       product,
-      store
+      store,
+      relatedProducts
     });
 
   } catch (error) {
