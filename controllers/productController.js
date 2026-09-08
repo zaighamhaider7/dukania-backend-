@@ -1,4 +1,5 @@
 const Product = require("../models/Products");
+const Order = require("../models/Order");
 
 const User = require("../models/Users");
 
@@ -87,5 +88,101 @@ const getsingleProduct = async (req, res) => {
 };
 
 
+const addOrder = async (req, res) => {
+  try {
+    const {
+      storeId,
+      customer,
+      delivery,
+      items,
+    } = req.body;
 
-module.exports = { addProduct, getsingleProduct };
+    if (!storeId) {
+      return res.status(400).json({
+        msg: "Store ID is required",
+      });
+    }
+
+    if (!customer?.name) {
+      return res.status(400).json({
+        msg: "Customer name is required",
+      });
+    }
+
+    if (!customer?.whatsappNumber) {
+      return res.status(400).json({
+        msg: "WhatsApp number is required",
+      });
+    }
+
+    if (!delivery?.address) {
+      return res.status(400).json({
+        msg: "Address is required",
+      });
+    }
+
+    if (!delivery?.city) {
+      return res.status(400).json({
+        msg: "City is required",
+      });
+    }
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({
+        msg: "Order items are required",
+      });
+    }
+
+    const orderItems = [];
+
+    let totalAmount = 0;
+
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        return res.status(404).json({
+          msg: "Product not found",
+        });
+      }
+
+      const price =
+        product.discountPrice || product.productPrice;
+
+      const total = price * item.quantity;
+
+      orderItems.push({
+        productId: product._id,
+        productName: product.productName,
+        price,
+        quantity: item.quantity,
+        total,
+      });
+
+      totalAmount += total;
+    }
+
+    const order = await Order.create({
+      storeId,
+      customer,
+      delivery,
+      items: orderItems,
+      totalAmount,
+      status: "pending",
+    });
+
+    return res.status(201).json({
+      msg: "Order placed successfully",
+      order,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = { addProduct, getsingleProduct, addOrder };
