@@ -72,6 +72,11 @@ const orderSchema = new mongoose.Schema(
           min: 1,
         },
 
+        variants: {
+          type: Object,
+          default: {},
+        },
+
         total: {
           type: Number,
           required: true,

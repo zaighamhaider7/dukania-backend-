@@ -146,6 +146,16 @@ const addOrder = async (req, res) => {
         });
       }
 
+      if (product.variants?.length > 0) {
+        for (const variant of product.variants) {
+          if (!item.variants?.[variant.name]) {
+            return res.status(400).json({
+              msg: `Please select ${variant.name}`,
+            });
+          }
+        }
+      }
+
       const price =
         product.discountPrice || product.productPrice;
 
@@ -156,6 +166,7 @@ const addOrder = async (req, res) => {
         productName: product.productName,
         price,
         quantity: item.quantity,
+        variants: item.variants || {},
         total,
       });
 
