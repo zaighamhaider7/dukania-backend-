@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const upload = require("../fileuploads/multer")
 
-const { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder } = require("../controllers/productController")
+const { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder, getOrders, getDashboardStats } = require("../controllers/productController")
 
 const { authMiddleware } = require("../middlewares/authMiddleware")
 
@@ -20,6 +20,10 @@ router.put( "/update/:id", authMiddleware, upload.array("productImages", 5), upd
 
 router.post("/orders", addOrder);
 
+router.get("/orders", authMiddleware, getOrders);
 
+// router.get("/orders/:orderId", authMiddleware, getSingleOrder);
+
+router.get("/dashboard-stats", authMiddleware, getDashboardStats);
 
 module.exports = router;

@@ -90,8 +90,11 @@ const getsingleProduct = async (req, res) => {
 const getProducts = async (req, res) => {
   try {
     const storeId = req.user.id;
+    const limit = parseInt(req.query.limit) || 0;
 
-    const products = await Product.find({ storeId });
+    const products = await Product.find({ storeId })
+      .sort({ createdAt: -1 })
+      .limit(limit);
 
     return res.status(200).json({
       msg: "Products fetched successfully",
@@ -402,4 +405,98 @@ const addOrder = async (req, res) => {
   }
 };
 
-module.exports = { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder };
+const getOrders = async (req, res) => {
+  try {
+    const storeId = req.user._id;
+
+    const limit = parseInt(req.query.limit) || 0;
+
+
+    const orders = await Order.find({ storeId })
+      .sort({ createdAt: -1 })
+      .limit(limit);
+
+
+    res.status(200).json({
+      msg: "Orders fetched successfully",
+      orders,
+    });
+  } catch (error) {
+
+    res.status(500).json({
+      msg: "Failed to fetch orders",
+    });
+  }
+};
+
+// const getSingleOrder = async (req, res) => {
+//   try {
+//     const { orderId } = req.params;
+//     const storeId = req.user._id;
+
+//     const order = await Order.findOne({
+//       _id: orderId,
+//       storeId,
+//     });
+
+//     if (!order) {
+//       return res.status(404).json({
+//         msg: "Order not found",
+//       });
+//     }
+
+//     res.status(200).json({
+//       msg: "Order fetched successfully",
+//       order,
+//     });
+//   } catch (error) {
+
+//     res.status(500).json({
+//       msg: "Failed to fetch order",
+//     });
+//   }
+// };
+
+
+
+const getDashboardStats = async (req, res) => {
+  try {
+    const storeId = req.user.id;
+
+    const totalProducts = await Product.countDocuments({
+      storeId,
+    });
+
+    const totalOrders = await Order.countDocuments({
+      storeId,
+    });
+
+    const inStockProducts = await Product.countDocuments({
+      storeId,
+      stocks: { $gt: 0 },
+    });
+
+    const outOfStockProducts = await Product.countDocuments({
+      storeId,
+      stocks: 0,
+    });
+
+    return res.status(200).json({
+      msg: "Dashboard stats fetched successfully",
+      stats: {
+        totalProducts,
+        totalOrders,
+        inStockProducts,
+        outOfStockProducts,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
+module.exports = { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder, getOrders, getDashboardStats };
