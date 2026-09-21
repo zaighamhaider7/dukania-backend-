@@ -87,6 +87,212 @@ const getsingleProduct = async (req, res) => {
   }
 };
 
+const getProducts = async (req, res) => {
+  try {
+    const storeId = req.user.id;
+
+    const products = await Product.find({ storeId });
+
+    return res.status(200).json({
+      msg: "Products fetched successfully",
+      products,
+    });
+
+  } catch (error) {
+
+    return res.status(500).json({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
+const deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const storeId = req.user.id;
+
+    const product = await Product.findOne({
+      _id: id,
+      storeId: storeId,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        msg: "Product not found",
+      });
+    }
+
+    await Product.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      msg: "Product deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      msg: "Internal Server Error",
+    });
+  }
+};
+
+const singleProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const product = await Product.findOne({
+      _id: id,
+      storeId: req.user._id,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        msg: "Product not found",
+      });
+    }
+
+    res.status(200).json({
+      msg: "Product fetched successfully",
+      product,
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      msg: "Server error",
+    });
+  }
+};
+
+const updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const {
+      productName,
+      productPrice,
+      discountPrice,
+      description,
+      stocks,
+      variants,
+      existingImages,
+    } = req.body;
+
+    const product = await Product.findOne({
+      _id: id,
+      storeId: req.user._id,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        msg: "Product not found",
+      });
+    }
+
+
+    if (!productName || !productName.trim()) {
+      return res.status(400).json({
+        msg: "Product Name is required",
+      });
+    }
+
+    if (
+      productPrice === undefined ||
+      productPrice === null ||
+      productPrice === ""
+    ) {
+      return res.status(400).json({
+        msg: "Product Price is required",
+      });
+    }
+
+    let oldImages = [];
+
+    if (existingImages) {
+      try {
+        oldImages = JSON.parse(existingImages);
+      } catch (error) {
+        return res.status(400).json({
+          msg: "Invalid existing images data",
+        });
+      }
+    }
+
+    if (!Array.isArray(oldImages)) {
+      oldImages = [];
+    }
+
+
+    const newImages = req.files
+      ? req.files.map((file) => file.path)
+      : [];
+
+    const finalImages = [...oldImages, ...newImages];
+
+    if (finalImages.length === 0) {
+      return res.status(400).json({
+        msg: "Product must have at least one image",
+      });
+    }
+
+    if (finalImages.length > 5) {
+      return res.status(400).json({
+        msg: "You can upload maximum 5 images",
+      });
+    }
+
+    let formattedVariants = [];
+
+    if (variants) {
+      try {
+        formattedVariants = JSON.parse(variants);
+      } catch (error) {
+        return res.status(400).json({
+          msg: "Invalid variants data",
+        });
+      }
+    }
+
+
+    product.productName = productName.trim();
+    product.productPrice = productPrice;
+
+    product.discountPrice =
+      discountPrice !== undefined && discountPrice !== ""
+        ? discountPrice
+        : undefined;
+
+    product.description =
+      description !== undefined
+        ? description
+        : "";
+
+    product.stocks =
+      stocks !== undefined && stocks !== ""
+        ? stocks
+        : undefined;
+
+    product.productImages = finalImages;
+
+    product.variants = formattedVariants;
+
+    await product.save();
+
+    res.status(200).json({
+      msg: "Product updated successfully",
+      product,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      msg: "Server error",
+    });
+  }
+};
+
 
 const addOrder = async (req, res) => {
   try {
@@ -196,4 +402,4 @@ const addOrder = async (req, res) => {
   }
 };
 
-module.exports = { addProduct, getsingleProduct, addOrder };
+module.exports = { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder };
