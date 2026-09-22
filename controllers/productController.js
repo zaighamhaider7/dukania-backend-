@@ -473,7 +473,10 @@ const getDashboardStats = async (req, res) => {
 
     const inStockProducts = await Product.countDocuments({
       storeId,
-      stocks: { $gt: 0 },
+      $or: [
+        { stocks: { $gt: 0 } },
+        { stocks: null },
+      ],
     });
 
     const outOfStockProducts = await Product.countDocuments({
@@ -499,4 +502,4 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
-module.exports = { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder, getOrders, getSingleOrder,  getDashboardStats };
+module.exports = { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder, getOrders, getSingleOrder, getDashboardStats };
