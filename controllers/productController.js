@@ -429,33 +429,33 @@ const getOrders = async (req, res) => {
   }
 };
 
-// const getSingleOrder = async (req, res) => {
-//   try {
-//     const { orderId } = req.params;
-//     const storeId = req.user._id;
+const getSingleOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const storeId = req.user._id;
 
-//     const order = await Order.findOne({
-//       _id: orderId,
-//       storeId,
-//     });
+    const order = await Order.findOne({
+      _id: orderId,
+      storeId,
+    });
 
-//     if (!order) {
-//       return res.status(404).json({
-//         msg: "Order not found",
-//       });
-//     }
+    if (!order) {
+      return res.status(404).json({
+        msg: "Order not found",
+      });
+    }
 
-//     res.status(200).json({
-//       msg: "Order fetched successfully",
-//       order,
-//     });
-//   } catch (error) {
+    res.status(200).json({
+      msg: "Order fetched successfully",
+      order,
+    });
+  } catch (error) {
 
-//     res.status(500).json({
-//       msg: "Failed to fetch order",
-//     });
-//   }
-// };
+    res.status(500).json({
+      msg: "Failed to fetch order",
+    });
+  }
+};
 
 
 
@@ -499,4 +499,4 @@ const getDashboardStats = async (req, res) => {
   }
 };
 
-module.exports = { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder, getOrders, getDashboardStats };
+module.exports = { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder, getOrders, getSingleOrder,  getDashboardStats };
