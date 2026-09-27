@@ -1,9 +1,9 @@
 const User = require("../models/Users")
+const sendAdminEmail = require("../utils/sendMail");
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require("express-validator");
-
 
 const register = async (req, res) => {
     try {
@@ -25,22 +25,39 @@ const register = async (req, res) => {
                 msg: "Email already exists",
             });
         }
-        else {
-            const hashPass = await bcrypt.hash(password, 10)
-            const userData = await User.create({
-                name, email, password: hashPass
-            });
-            res.status(201).json({
-                msg: "User Register Succesfully",
-            })
+
+        const hashPass = await bcrypt.hash(password, 10);
+
+        const userData = await User.create({
+            name,
+            email,
+            password: hashPass,
+        });
+
+        res.status(201).json({
+            msg: "User Register Succesfully",
+        });
+
+        try {
+            await sendAdminEmail(
+                "New User Registered",
+                `
+New user has registered on Dukania.
+
+Name: ${name}
+Email: ${email}
+`
+            );
+        } catch (emailError) {
+            console.log("Admin email failed:", emailError);
         }
-    }
-    catch (error) {
+
+    } catch (error) {
         return res.status(500).json({
             msg: "Internal Server Error",
         });
     }
-}
+};
 
 const login = async (req, res) => {
     try {
@@ -87,7 +104,8 @@ const login = async (req, res) => {
                 email: emailExist.email,
                 storeName: emailExist.storeName,
                 storeUsername: emailExist.storeUsername,
-                logo: emailExist.logo
+                logo: emailExist.logo,
+                isAdmin: emailExist.isAdmin
             },
             token: token
         })
