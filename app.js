@@ -23,4 +23,9 @@ const productRoutes = require('./routes/productRoutes');
 
 app.use('/api/product',productRoutes);
 
+// payment routes
+const paymentRoutes = require('./routes/paymentRoutes');
+
+app.use('/api/payment',paymentRoutes);
+
 module.exports = app;                                                                   

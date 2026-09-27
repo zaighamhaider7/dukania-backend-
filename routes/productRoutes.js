@@ -5,25 +5,27 @@ const upload = require("../fileuploads/multer")
 const { addProduct, getsingleProduct, getProducts, deleteProduct, singleProduct, updateProduct, addOrder, getOrders, getSingleOrder, getDashboardStats } = require("../controllers/productController")
 
 const { authMiddleware } = require("../middlewares/authMiddleware")
+const { subscriptionMiddleware } = require("../middlewares/subscriptionMiddleware")
 
-router.post('/add', authMiddleware, upload.array("productImages", 5), addProduct)
 
-router.get('/show', authMiddleware, getProducts)
+router.post('/add', authMiddleware, subscriptionMiddleware, upload.array("productImages", 5), addProduct)
 
-router.delete("/delete/:id", authMiddleware, deleteProduct);
+router.get('/show', authMiddleware, subscriptionMiddleware, getProducts)
+
+router.delete("/delete/:id", authMiddleware, subscriptionMiddleware, deleteProduct);
 
 router.get("/store/:storeUsername/product/:productId", getsingleProduct);
 
-router.get("/edit/:id", authMiddleware, singleProduct);
+router.get("/edit/:id", authMiddleware, subscriptionMiddleware, singleProduct);
 
-router.put( "/update/:id", authMiddleware, upload.array("productImages", 5), updateProduct);
+router.put( "/update/:id", authMiddleware, subscriptionMiddleware, upload.array("productImages", 5), updateProduct);
 
 router.post("/orders", addOrder);
 
-router.get("/orders", authMiddleware, getOrders);
+router.get("/orders", authMiddleware, subscriptionMiddleware, getOrders);
 
-router.get("/orders/:orderId", authMiddleware, getSingleOrder);
+router.get("/orders/:orderId", authMiddleware, subscriptionMiddleware, getSingleOrder);
 
-router.get("/dashboard-stats", authMiddleware, getDashboardStats);
+router.get("/dashboard-stats", authMiddleware, subscriptionMiddleware, getDashboardStats);
 
 module.exports = router;
