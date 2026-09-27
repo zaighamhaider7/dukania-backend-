@@ -58,6 +58,15 @@ const createStore = async (req, res) => {
       user.logo = req.file.path;
     }
 
+    const trialStartsAt = new Date();
+
+    const trialEndsAt = new Date(trialStartsAt);
+    trialEndsAt.setDate(trialEndsAt.getDate() + 30);
+
+    user.trialStartsAt = trialStartsAt;
+    user.trialEndsAt = trialEndsAt;
+    user.subscriptionStatus = "trial";
+
     await user.save();
 
     return res.status(200).json({

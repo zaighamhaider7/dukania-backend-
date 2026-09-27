@@ -72,6 +72,11 @@ const userSchema = new mongoose.Schema(
       default: "trial",
     },
 
+    trialStartsAt: {
+      type: Date,
+      default: null,
+    },
+
     trialEndsAt: {
       type: Date,
       default: null,
@@ -92,8 +97,8 @@ userSchema.methods.generatetoken = function () {
     {
       userid: this._id,
       email: this.email,
-    },process.env.JWT_SECRET,
-    
+    }, process.env.JWT_SECRET,
+
     {
       expiresIn: "1d",
     }
