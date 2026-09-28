@@ -1,6 +1,8 @@
 const Payment = require("../models/Payment");
 
 const User = require("../models/Users");
+const sendAdminEmail = require("../utils/sendMail");
+
 
 const createPayment = async (req, res) => {
     try {
@@ -25,6 +27,21 @@ const createPayment = async (req, res) => {
             screenshot: req.file.path,
             status: "pending",
         });
+
+        try {
+            await sendAdminEmail(
+                "New Payment Submitted",
+                `
+New payment has been submitted on Dukania.
+
+Store Name: ${req.user.storeName}
+Amount: PKR ${amount}
+Plan: ${plan}
+`
+            );
+        } catch (emailError) {
+            console.log("Admin email failed:", emailError);
+        }
 
         res.status(201).json({
             msg: "Payment submitted successfully",

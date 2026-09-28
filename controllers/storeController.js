@@ -1,5 +1,7 @@
 const User = require("../models/Users")
 const Product = require("../models/Products");
+const sendAdminEmail = require("../utils/sendMail");
+
 
 
 const createStore = async (req, res) => {
@@ -69,11 +71,26 @@ const createStore = async (req, res) => {
 
     await user.save();
 
+    try {
+      await sendAdminEmail(
+        "New Store Created",
+        `
+A new store has been created on Dukania.
+
+Store Name: ${storeName}
+Store User Name: ${storeUsername}
+Owner Name: ${user.name}
+`
+      );
+    } catch (emailError) {
+      console.log("Admin email failed:", emailError);
+    }
+
+
     return res.status(200).json({
       msg: "Store created successfully",
       user
     });
-
 
   } catch (error) {
     console.log(error)
